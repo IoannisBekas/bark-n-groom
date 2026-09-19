@@ -272,6 +272,35 @@ section[id], [id="contact"] { scroll-margin-top: 96px; }
 .nav-links__cta { display: none; }
 
 .navbar__actions { display: flex; align-items: center; gap: 8px; }
+
+.lang-switch {
+  display: inline-flex;
+  padding: 3px;
+  border-radius: 999px;
+  background: var(--paper-2);
+  box-shadow: inset 0 0 0 1px var(--line);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+.lang-switch a {
+  padding: 8px 10px;
+  border-radius: 999px;
+  line-height: 1;
+  color: var(--muted);
+  transition: color 0.2s, background-color 0.2s;
+}
+.lang-switch a:hover { color: var(--rust); }
+.lang-switch a[aria-current="page"] {
+  background: #fff;
+  color: var(--rust);
+  box-shadow: 0 1px 4px rgba(60, 25, 10, 0.15);
+}
+.footer__lang {
+  margin-left: 10px;
+  color: #fff;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+}
 .nav-toggle { display: none; }
 .nav-toggle .ico--close { display: none; }
 .nav-toggle[aria-expanded="true"] .ico--open { display: none; }
@@ -1068,7 +1097,7 @@ section[id], [id="contact"] { scroll-margin-top: 96px; }
 /* ==========================================================================
    Responsive
    ========================================================================== */
-@media (max-width: 1080px) {
+@media (max-width: 1160px) {
   .nav-toggle { display: inline-grid; }
   .navbar__actions .icon-btn[href] { display: none; }
 
@@ -1147,7 +1176,12 @@ section[id], [id="contact"] { scroll-margin-top: 96px; }
   .icard--wide::after { background: linear-gradient(to top, #fff 30%, rgba(255, 255, 255, 0.85) 46%, rgba(255, 255, 255, 0) 70%); }
   .icard--wide { min-height: 380px; }
 
-  .float-pill { padding: 6px 11px; }
+  .float-pill { padding: 5px 10px; font-size: 10px; }
+  .float-pill:nth-of-type(2),
+  .float-pill:nth-of-type(4) { display: none; }
+  .float-pill:nth-of-type(1) { left: 4%; top: -10%; }
+  .float-pill:nth-of-type(3) { left: 62%; top: -14%; }
+  .services__word { margin-top: 18px; }
   .section-head h2 br { display: none; }
   .reviews__bottom { font-size: 16.5vw; }
 

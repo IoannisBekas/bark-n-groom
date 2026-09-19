@@ -2,6 +2,46 @@
   "use strict";
 
   const EMAIL = "barkngroom68@gmail.com";
+  const lang = document.documentElement.lang.startsWith("el") ? "el" : "en";
+
+  /* UI text for each language; everything else lives in the HTML pages. */
+  const T = {
+    el: {
+      locale: "el-GR",
+      openMenu: "Άνοιγμα μενού",
+      closeMenu: "Κλείσιμο μενού",
+      goToReview: (n) => `Μετάβαση στην κριτική ${n}`,
+      missing: "Συμπληρώστε το όνομά σας και ένα τηλέφωνο για να σας καλέσουμε.",
+      sent: "Θα ανοίξει η εφαρμογή email σας με έτοιμο το αίτημα. Προτιμάτε τηλέφωνο; Καλέστε στο 21 3099 4470.",
+      greeting: "Γεια σας,",
+      intro: "Θα ήθελα να κλείσω ένα ραντεβού.",
+      name: "Όνομα",
+      phone: "Τηλέφωνο",
+      dog: "Σκύλος",
+      service: "Υπηρεσία",
+      date: "Προτιμώμενη ημερομηνία",
+      notes: "Σημειώσεις",
+      subject: (service, dog) => `Αίτημα ραντεβού: ${service}${dog ? " για " + dog : ""}`,
+    },
+    en: {
+      locale: "en-GB",
+      openMenu: "Open menu",
+      closeMenu: "Close menu",
+      goToReview: (n) => `Go to review ${n}`,
+      missing: "Please add your name and a phone number so we can call you back.",
+      sent: "Your email app should open with the request ready to send. Prefer the phone? Call 21 3099 4470.",
+      greeting: "Hello Bark n' Groom,",
+      intro: "I'd like to book an appointment.",
+      name: "Name",
+      phone: "Phone",
+      dog: "Dog",
+      service: "Service",
+      date: "Preferred date",
+      notes: "Notes",
+      subject: (service, dog) => `Booking request: ${service}${dog ? " for " + dog : ""}`,
+    },
+  }[lang];
+
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   /* ---------- Header: scrolled state + mobile call button ---------- */
@@ -23,7 +63,7 @@
 
   const setMenu = (open) => {
     toggle.setAttribute("aria-expanded", String(open));
-    toggle.setAttribute("aria-label", open ? "Close menu" : "Open menu");
+    toggle.setAttribute("aria-label", open ? T.closeMenu : T.openMenu);
     links.classList.toggle("is-open", open);
   };
 
@@ -104,7 +144,7 @@
     const dots = cards.map((_, i) => {
       const b = document.createElement("button");
       b.type = "button";
-      b.setAttribute("aria-label", `Go to review ${i + 1}`);
+      b.setAttribute("aria-label", T.goToReview(i + 1));
       b.addEventListener("click", () => goTo(i));
       dotsWrap.appendChild(b);
       return b;
@@ -157,7 +197,10 @@
   if (form) {
     const status = form.querySelector("[data-status]");
     const date = form.querySelector("#f-date");
-    if (date) date.min = new Date().toISOString().slice(0, 10);
+    if (date) {
+      const now = new Date();
+      date.min = new Date(now - now.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
+    }
 
     form.addEventListener("submit", (e) => {
       e.preventDefault();
@@ -171,31 +214,37 @@
         if (!ok && !firstInvalid) firstInvalid = input;
       });
       if (firstInvalid) {
-        status.textContent = "Please add your name and a phone number so we can call you back.";
+        status.textContent = T.missing;
         status.classList.add("is-error");
         firstInvalid.focus();
         return;
       }
 
-      const lines = [
-        "Hello Bark n' Groom,",
-        "",
-        "I'd like to book an appointment.",
-        "",
-        `Name: ${data.name}`,
-        `Phone: ${data.phone}`,
-        data.dog ? `Dog: ${data.dog}` : "",
-        `Service: ${data.service}`,
-        data.date ? `Preferred date: ${data.date}` : "",
-        data.message ? `\nNotes: ${data.message}` : "",
-      ].filter((l) => l !== "");
+      const prettyDate = data.date
+        ? new Date(data.date + "T12:00").toLocaleDateString(T.locale, {
+            weekday: "long", day: "numeric", month: "long", year: "numeric",
+          })
+        : null;
 
-      const subject = `Booking request: ${data.service}${data.dog ? " for " + data.dog : ""}`;
+      const lines = [
+        T.greeting,
+        "",
+        T.intro,
+        "",
+        `${T.name}: ${data.name}`,
+        `${T.phone}: ${data.phone}`,
+        data.dog ? `${T.dog}: ${data.dog}` : null,
+        `${T.service}: ${data.service}`,
+        prettyDate ? `${T.date}: ${prettyDate}` : null,
+        data.message ? `\n${T.notes}: ${data.message}` : null,
+      ].filter((l) => l !== null);
+
+      const subject = T.subject(data.service, data.dog);
       window.location.href =
         `mailto:${EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(lines.join("\n"))}`;
 
       status.classList.remove("is-error");
-      status.textContent = "Your email app should open with the request ready to send. Prefer the phone? Call 21 3099 4470.";
+      status.textContent = T.sent;
     });
   }
 
